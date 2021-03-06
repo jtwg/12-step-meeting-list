@@ -28,7 +28,7 @@ function tsml_save_post($post_id, $post, $update) {
 	$update = ($post->post_date !== $post->post_modified);
 
 	//sanitize strings (website, website_2, paypal are not included)
-	$strings = array('post_title', 'location', 'formatted_address', 'mailing_address', 'venmo', 'square', 'post_status', 'group', 'last_contact', 'conference_url_notes', 'conference_phone', 'conference_phone_notes');
+	$strings = array('post_title', 'location', 'formatted_address', 'mailing_address', 'venmo', 'square', 'post_status', 'group', 'last_contact', 'conference_url_notes', 'conference_phone', 'conference_phone_notes', 'status', 'attendance');
 	foreach ($strings as $string) {
 		$_POST[$string] = stripslashes(sanitize_text_field($_POST[$string]));
 	}
@@ -58,6 +58,15 @@ function tsml_save_post($post_id, $post, $update) {
 	
 	if (!$update || strcmp(tsml_paragraphs($old_meeting->post_content), tsml_paragraphs($_POST['post_content'])) !== 0) {
 		$changes[] = 'notes';
+	}
+	if (!$update || strcmp($old_meeting->status, $_POST['status']) !== 0) {
+		$changes[] = 'status';
+		update_post_meta($post->ID, 'status', $_POST['status']);
+	}
+
+	if (!$update || strcmp($old_meeting->attendance, $_POST['attendance']) !== 0) {
+		$changes[] = 'attendance';
+		update_post_meta($post->ID, 'attendance', $_POST['attendance']);
 	}
 
 	//check types for not-array-ness
@@ -392,7 +401,7 @@ function tsml_save_post($post_id, $post, $update) {
 		}
 		$message .= '</p><table style="font:14px arial;width:100%;border-collapse:collapse;padding:0;">';
 		$fields = array_merge(
-			array('name', 'day', 'time', 'end_time', 'types', 'notes', 'location', 'formatted_address', 'region', 'location_notes', 'group', 'district', 'group_notes'),
+			array('name', 'day', 'time', 'end_time', 'status', 'attendance', 'types', 'notes', 'location', 'formatted_address', 'region', 'location_notes', 'group', 'district', 'group_notes'),
 			array_keys($tsml_contact_fields)
 		);
 		foreach ($fields as $field) {
@@ -416,6 +425,12 @@ function tsml_save_post($post_id, $post, $update) {
 			} elseif ($field == 'end_time') {
 				if ($update) $old = empty($old_meeting->end_time) ? '' : tsml_format_time($old_meeting->end_time, '');
 				$new = empty($_POST['end_time']) ? '' : tsml_format_time($_POST['end_time'], '');
+			} elseif ($field == 'status') {
+				if ($update) $old = $old_meeting->status;
+				$new = $_POST['status'];
+			} elseif ($field == 'attendance') {
+				if ($update) $old = $old_meeting->attendance;
+				$new = $_POST['attendance'];
 			} elseif ($field == 'region') {
 				if ($term = get_term($_POST['region'], 'tsml_region')) {
 					$new = $term->name;
