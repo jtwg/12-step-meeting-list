@@ -74,6 +74,22 @@ function tsml_admin_init() {
 			<input type="text" class="time" name="time" id="time" value="<?php echo $meeting->time ?>"<?php disabled(!strlen(@$meeting->day))?> data-time-format="<?php echo get_option('time_format') ?>">
 			<input type="text" class="time" name="end_time" id="end_time" value="<?php echo $meeting->end_time ?>"<?php disabled(!strlen(@$meeting->day))?> data-time-format="<?php echo get_option('time_format') ?>">
 		</div>
+		<div class="meta_form_row">
+			<label for="status"><?php _e('Status', '12-step-meeting-list') ?></label>
+			<select name="status" id="status">
+				<option value="active" <?php selected($meeting->status, 'active') ?>><?php _e('Active', '12-step-meeting-list') ?></option>
+				<option value="temp_closed" <?php selected($meeting->status, 'temp_closed') ?>><?php _e('Temporarily Closed', '12-step-meeting-list') ?></option>
+			</select>
+			</div>
+			<div class="meta_form_row">
+				<label for="attendance"><?php _e('Attendance Option', '12-step-meeting-list') ?></label>
+				<select name="attendance" id="attendance">
+					<option value="in_person" <?php selected($meeting->attendance, 'in_person') ?>><?php _e('In Person Only', '12-step-meeting-list') ?></option>
+					<option value="online" <?php selected($meeting->attendance, 'online') ?>><?php _e('Online Only', '12-step-meeting-list') ?></option>
+					<option value="hybrid" <?php selected($meeting->attendance, 'hybrid') ?>><?php _e('Hybrid', '12-step-meeting-list') ?></option>
+				</select>
+			</div>
+		</div>
 		<?php if (tsml_program_has_types()) {?>
 		<div class="meta_form_row">
 			<label for="types"><?php _e('Types', '12-step-meeting-list')?></label>
